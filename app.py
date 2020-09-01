@@ -40,8 +40,9 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/2016-08-23<br/>"
-        f"/api/v1.0/2015-01-01to2015-12-31"
+        f"/api/v1.0/start_date<br/>"
+        f"/api/v1.0/start_date/end_date<br/><br/>"
+        f"Input dates in this format: YYYY-MM-DD"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -100,41 +101,41 @@ def tobs():
 
     return jsonify(temp_obs)
 
-@app.route("/api/v1.0/2016-08-23")
-def start():
+@app.route("/api/v1.0/<start>")
+def start(start):
 #     # Create our session (link) from Python to the DB
     session = Session(engine)
 
     # query for min, avg, and max temperatures over the year
     low_temp = session.query(func.min(measurement.tobs)).\
-        filter(measurement.date > '2016-08-23').all()
+        filter(measurement.date > start).all()
 
     high_temp = session.query(func.max(measurement.tobs)).\
-        filter(measurement.date > '2016-08-23').all() 
+        filter(measurement.date > start).all() 
 
     avg_temp = session.query(func.avg(measurement.tobs)).\
-        filter(measurement.date > '2016-08-23').all()
+        filter(measurement.date > start).all()
 
-    start_dict = ([('high temp', high_temp),
+    start_dict = [('high temp', high_temp),
                         ('avg temp', avg_temp),
-                        ('low temp', low_temp)])
+                        ('low temp', low_temp)]
 
     return jsonify(start_dict)
 
-@app.route("/api/v1.0/2015-01-01to2015-12-31")
-def range():
+@app.route("/api/v1.0/<start>/<end>")
+def range(start, end):
 #     # Create our session (link) from Python to the DB
     session = Session(engine)
 
     # query for min, avg, and max temperatures over the specified time range
     low_temp = session.query(func.min(measurement.tobs)).\
-        filter(measurement.date > '2015-01-01', measurement.date <= '2015-12-31').all()
+        filter(measurement.date > start, measurement.date <= end).all()
 
     high_temp = session.query(func.max(measurement.tobs)).\
-        filter(measurement.date > '2015-01-01', measurement.date <= '2015-12-31').all() 
+        filter(measurement.date > start, measurement.date <= end).all() 
 
     avg_temp = session.query(func.avg(measurement.tobs)).\
-        filter(measurement.date > '2015-01-01', measurement.date <= '2015-12-31').all()
+        filter(measurement.date > start, measurement.date <= end).all()
 
     range_dict = ([('high temp', high_temp),
                         ('avg temp', avg_temp),
